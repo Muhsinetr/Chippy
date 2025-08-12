@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chippy poster maker</title>
+    <style>
+body {
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+background: linear-gradient(135deg, #a1c4fd, #c2e9fb);
+margin: 40px;
+padding: 30px;
+display: flex;
+justify-content: center;
+align-items: center;
+min-height: 100vh;
+}
+div {
+background-color: white;
+padding: 30px;
+border-radius: 12px;
+box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+border: 1px solid #e0e0e0;
+max-width: 600px;
+width: 100%;
+}
+label {
+display: block;
+margin-top: 15px;
+font-weight: bold;
+color: #333;
+margin-bottom: 5px;
+}
+input,
+select {
+width: calc(100% - 18px);
+padding: 10px;
+margin-top: 5px;
+border: 1px solid #ccc;
+border-radius: 6px;
+box-sizing: border-box;
+font-size: 16px;
+}
+input:focus,
+select:focus {
+outline: none;
+border-color: #007bff;
+box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+}
+button {
+margin-top: 25px;
+padding: 12px 20px;
+border: none;
+border-radius: 6px;
+cursor: pointer;
+font-size: 18px;
+transition: background-color 0.3s ease;
+}
+#ok {
+background-color: #007bff;
+color: white;
+}
+#ok:hover {
+background-color: #0056b3;
+}
+#download {
+background-color: #28a745;
+color: white;
+margin-left: 10px;
+}
+#download:hover {
+background-color: #1e7e34;
+}
+#preview {
+display: none;
+max-width: 100%;
+margin-top: 30px;
+border: 1px solid #ddd;
+border-radius: 6px;
+box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+    </style>
+</head>
+<body>
+    <div>
+        <label for="roll">Ward Number:</label>
+        <input type="number" value="4" id="roll" placeholder="Enter ward number">
+        <label for="date">Date:</label>
+        <input type="date" id="date">
+        <label for="vehicle">Items:</label>
+        <select id="vehicle">
+            <option value="car">Plastic</option>
+            <option value="bike">Clothe</option>
+            <option value="bus">Glass</option>
+        </select>
+        <button id="ok">OK</button>
+        <button id="download" style="display: none;">Download Modified Image</button>
+        <img id="preview" alt="Modified Image">
+    </div>
+
+    <script>
+        var modifiedDataURL = null; // To store the data URL of the modified image
+        var originalImage = new Image();
+        originalImage.src = 'mypic.jpg'; // Replace with your actual main image path
+
+        var carImg = new Image();
+        carImg.src = 'plastic.jpg'; // Replace with your actual car image path
+
+        var bikeImg = new Image();
+        bikeImg.src = 'cloth.jpg'; // Replace with your actual bike image path
+
+        var busImg = new Image();
+        busImg.src = 'glass.jpg'; // Replace with your actual bus image path
+
+        // Wait for the main image to load before any processing
+        originalImage.onload = function() {
+            // Image is loaded and ready for use in canvas
+        };
+
+        document.getElementById('ok').addEventListener('click', function() {
+            // Get values from inputs
+            var roll = document.getElementById('roll').value;
+            var dateInput = document.getElementById('date').value;
+            var vehicle = document.getElementById('vehicle').value;
+            
+            // Format date if needed (e.g., convert YYYY-MM-DD to DD/MM/YYYY)
+            var dateParts = dateInput.split('-');
+            var formattedDate = dateParts[2] + '/' + dateParts[1] + '/' + dateParts[0]; // Customize as needed
+            
+            // Select the vehicle image based on choice
+            var vehicleImg = null;
+            if (vehicle === 'car') {
+                vehicleImg = carImg;
+            } else if (vehicle === 'bike') {
+                vehicleImg = bikeImg;
+            } else if (vehicle === 'bus') {
+vehicleImg = busImg;
+            }
+            
+            // Create a canvas element
+            var canvas = document.createElement('canvas');
+            canvas.width = originalImage.naturalWidth; // Use natural width to avoid scaling issues
+            canvas.height = originalImage.naturalHeight;
+            
+            // Get 2D context
+            var ctx = canvas.getContext('2d');
+            
+            // Draw the original image on the canvas
+            ctx.drawImage(originalImage, 0, 0, canvas.width, canvas.height);
+            
+            // Set font styles (customize font, size, color as needed)
+            ctx.font = 'bold 50px Arial'; // Font family and size
+            ctx.fillStyle = 'rgb(179,54,55)'; // Text color
+            ctx.textAlign = 'left'; // Alignment (left, center, right)
+            
+            
+            // Draw roll number at a specific position (x, y coordinates - adjust these)
+            // Example: Place roll number at (50, 100) pixels from top-left
+            ctx.fillText(roll, 610, 580)
+            
+            // Draw date at another specific position
+            // Example: Place date at (50, 150) pixels from top-left
+            ctx.fillText(formattedDate, 75, 580);
+            
+            // Draw the selected vehicle image if chosen (adjust position and size)
+            if (vehicleImg) {
+                // Example: Place vehicle image at (200, 200) with width 100px, height 100px - adjust as needed
+                ctx.drawImage(vehicleImg, 375, 640, 250, 25);
+            }
+            
+            // Convert canvas to a new image data URL
+            modifiedDataURL = canvas.toDataURL('image/png');
+
+            // Display the modified image
+            var previewImg = document.getElementById('preview');
+            previewImg.src = modifiedDataURL;
+            previewImg.style.display = 'block';
+
+            // Show the download button
+            document.getElementById('download').style.display = 'inline-block';
+        });
+
+        document.getElementById('download').addEventListener('click', function() {
+            if (modifiedDataURL) {
+                // Create a temporary link element
+                var link = document.createElement('a');
+                link.href = modifiedDataURL;
+                link.download = 'modified_image.png'; // Customize the file name as needed
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } else {
+                alert('Please modify the image first by clicking OK.');
+            }
+        });
+    </script>
+</body>
+</html>
