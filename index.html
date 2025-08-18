@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chippy poster maker</title>
+    <style>
+        /* General styles for all screen sizes (Mobile-First) */
+        
+         :root {
+            --primary-color: #007bff;
+            --primary-hover: #0056b3;
+            --secondary-color: #28a745;
+            --secondary-hover: #1e7e34;
+            --light-gray: #f8f9fa;
+            --dark-text: #343a40;
+        }
+        /* Use the full screen and apply a clean background */
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--light-gray);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+        /* The main container for the form */
+        
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            /* Max width for larger phones/small tablets */
+            box-sizing: border-box;
+        }
+        
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: 600;
+            /* Bolder for better readability */
+            color: var(--dark-text);
+            margin-bottom: 8px;
+        }
+        /* Style for all inputs and the select dropdown */
+        
+        input,
+        select {
+            width: 100%;
+            padding: 12px;
+            margin-top: 0;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 16px;
+            /* Prevents auto-zoom on iOS */
+            background-color: #fff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        /* Highlight effect when an input is selected */
+        
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        }
+        /* Make buttons full-width and easily tappable */
+        
+        button {
+            width: 100%;
+            padding: 15px;
+            margin-top: 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        
+        button:active {
+            transform: scale(0.98);
+            /* Adds a nice press effect */
+        }
+        
+        #ok {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        #ok:hover {
+            background-color: var(--primary-hover);
+        }
+        /* The download button is also full-width */
+        
+        #download {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        
+        #download:hover {
+            background-color: var(--secondary-hover);
+        }
+        /* Ensure the preview image fits within the container */
+        
+        #preview {
+            display: none;
+            max-width: 100%;
+            margin-top: 25px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+        /* Styles for larger screens (Tablets and Desktops) */
+        
+        @media (min-width: 600px) {
+            .container {
+                padding: 40px;
+            }
+            /* Place buttons side-by-side on larger screens */
+            .button-group {
+                display: flex;
+                gap: 15px;
+                /* Creates space between buttons */
+            }
+            button {
+                width: 50%;
+                /* Each button takes half the space */
+                margin-top: 25px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <label for="roll">Ward Number:</label>
+        <input type="number" value="4" id="roll" placeholder="Enter ward number">
+
+        <label for="date">Date:</label>
+        <input type="date" id="date">
+
+        <label for="vehicle">Items:</label>
+        <select id="vehicle">
+            <option value="">Plastic only</option>
+            <option value="bike">Clothe</option>
+            <option value="bus">Glass</option>
+        </select>
+
+        <div class="button-group">
+            <button id="ok">OK</button>
+            <button id="download" style="display: none;">Download Modified Image</button>
+        </div>
+
+        <img id="preview" alt="Modified Image">
+    </div>
+
+    <script>
+        var modifiedDataURL = null; // To store the data URL of the modified image
+        var originalImage = new Image();
+        originalImage.src = 'mypic.jpg'; // Replace with your actual main image path
+
+        var Plasticimg = new Image();
+        Plasticimg.src = 'plastic.jpg'; // Replace with your actual car image path
+
+        var Clothimg = new Image();
+        Clothimg.src = 'cloth.jpg'; // Replace with your actual bike image path
+
+        var Glassimg = new Image();
+        Glassimg.src = 'glass.jpg'; // Replace with your actual bus image path
+
+        // Wait for the main image to load before any processing
+        originalImage.onload = function() {
+            // Image is loaded and ready for use in canvas
+        };
+
+        document.getElementById('ok').addEventListener('click', function() {
+            // Get values from inputs
+            var roll = document.getElementById('roll').value;
+            var dateInput = document.getElementById('date').value;
+            var itemName = document.getElementById('vehicle').value;
+
+            // Format date if needed (e.g., convert YYYY-MM-DD to DD/MM/YYYY)
+            var dateParts = dateInput.split('-');
+            var formattedDate = dateParts[2] + '/' + dateParts[1] + '/' + dateParts[0]; // Customize as needed
+
+            // Select the item image based on choice
+            var selectedimg = null;
+            if (itemName === 'bike') {
+                selectedimg = Clothimg;
+            } else if (itemName === 'bus') {
+                selectedimg = Glassimg;
+            }
+
+            // Create a canvas element
+            var canvas = document.createElement('canvas');
+            canvas.width = originalImage.naturalWidth; // Use natural width to avoid scaling issues
+            canvas.height = originalImage.naturalHeight;
+
+            // Get 2D context
+            var ctx = canvas.getContext('2d');
+
+            // Draw the original image on the canvas
+            ctx.drawImage(originalImage, 0, 0, canvas.width, canvas.height);
+
+            // Set font styles (customize font, size, color as needed)
+            ctx.font = 'bold 50px Arial'; // Font family and size
+            ctx.fillStyle = 'rgb(179,54,55)'; // Text color
+            ctx.textAlign = 'left'; // Alignment (left, center, right)
+
+
+            // Draw roll number at a specific position (x, y coordinates - adjust these)
+            // Example: Place roll number at (50, 100) pixels from top-left
+            ctx.fillText(roll, 610, 580)
+
+            // Draw date at another specific position
+            // Example: Place date at (50, 150) pixels from top-left
+            ctx.fillText(formattedDate, 75, 580);
+
+            // Selected img
+            ctx.drawImage(Plasticimg, 375, 640, 250, 25);
+
+            // Draw the selected items image if chosen (adjust position and size)
+            if (selectedimg) {
+                // Example: Place vehicle image at (200, 200) with width 100px, height 100px - adjust as needed
+                ctx.drawImage(selectedimg, 375, 670, 250, 25);
+            }
+
+            // Convert canvas to a new image data URL
+            modifiedDataURL = canvas.toDataURL('image/png');
+
+            // Display the modified image
+            var previewImg = document.getElementById('preview');
+            previewImg.src = modifiedDataURL;
+            previewImg.style.display = 'block';
+
+            // Show the download button
+            document.getElementById('download').style.display = 'inline-block';
+        });
+
+        document.getElementById('download').addEventListener('click', function() {
+            if (modifiedDataURL) {
+                // Create a temporary link element
+                var link = document.createElement('a');
+                var dateInput = document.getElementById('date').value;
+                var dateParts = dateInput.split('-');
+                var dayWeek = dateParts[2] + '-' + dateParts[1];
+
+                link.href = modifiedDataURL;
+                link.download = `Notice${dayWeek}.png`; // Customize the file name as needed
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } else {
+                alert('Please modify the image first by clicking OK.');
+            }
+        });
+    </script>
+</body>
+
+</html>
