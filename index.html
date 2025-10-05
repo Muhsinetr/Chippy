@@ -153,6 +153,7 @@
             <option value="">Plastic only</option>
             <option value="bike">Clothe</option>
             <option value="bus">Glass</option>
+            <option value="cheppal">Cheppal</option>
         </select>
 
         <div class="button-group">
@@ -177,6 +178,9 @@
         var Glassimg = new Image();
         Glassimg.src = 'glass.jpg'; // Replace with your actual bus image path
 
+        var Cheppalimg = new Image();
+        Glassimg.src = 'cheppal.jpg';
+
         // Wait for the main image to load before any processing
         originalImage.onload = function() {
             // Image is loaded and ready for use in canvas
@@ -198,6 +202,8 @@
                 selectedimg = Clothimg;
             } else if (itemName === 'bus') {
                 selectedimg = Glassimg;
+            } else if (itemName === 'cheppal') {
+                selectedimg = Cheppalimg;
             }
 
             // Create a canvas element
@@ -265,5 +271,6 @@
         });
     </script>
 </body>
+
 
 </html>
