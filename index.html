@@ -187,6 +187,19 @@
         originalImage.onload = function() {
             // Image is loaded and ready for use in canvas
         };
+        function callLocalstroage() {
+    if (localStorage.getItem("PosterPass")) {
+        return;
+    } else {
+        let msg = prompt('Enter tha password', "");
+        if (msg == "hari123") {
+            localStorage.setItem("PosterPass", "hari123");
+        } else {
+            document.write("Unauthorised Access !");
+        }
+    }
+};
+        callLocalstroage();
 
         document.getElementById('ok').addEventListener('click', function() {
             // Get values from inputs
@@ -276,4 +289,5 @@
 
 
 </html>
+
 
